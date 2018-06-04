@@ -2,6 +2,7 @@ require 'rubygems'
 require 'sinatra'
 require 'sinatra/reloader'
 
+
 get '/' do
 	erb "Hello! <a href=\"https://github.com/bootstrap-ruby/sinatra-bootstrap\">Original</a> pattern has been modified for <a href=\"http://rubyschool.us/\">Ruby School</a>"
 end
@@ -9,6 +10,36 @@ end
 get '/about' do
 	erb :about
 end
+
+get '/contacts' do
+	erb :contacts
+end
+
+post '/contact' do
+
+        @uname = params[:uname]
+        @umail = params[:umail]
+        @umessage = params[:umessage]
+require 'pony'
+				Pony.mail(
+			        :from => params[:uname] + "<" + params[:uemail] + ">",
+			        :to => 'etest527@gmail.com',
+			        :subject => "Barber shop " + params[:uname] + " has contacted you",
+			        :body => params[:umessage],
+			        :port => '587',
+			        :via => :smtp,
+			        :via_options => {
+			          :address              => 'smtp.gmail.com',
+			          :port                 => '587',
+			          :enable_starttls_auto => true,
+			          :user_name            => 'etest527@gmail.com',
+			          :password             => 't3stt3st',
+			          :authentication       => :plain,
+			          :domain               => 'localhost.localdomain',
+			        })
+
+							redirect '/success'
+    end
 
 get '/visit' do
 	erb :visit
@@ -25,7 +56,7 @@ post '/visit' do
 # if @username == ''
 #	@errors
 #end
-# and than for all variables in form
+# and than for all values or variables in form
 
 #Second way: use hash
 	# хеш
