@@ -2,26 +2,44 @@
   <p>На этой странице вы сможете с нами связаться: </p>
 
 
-  <form action="/contacts" method="POST" role="form">
+  <%#<form action="/contacts" enctype="text/plain" id="email" method="post" name="email">
+  <fieldset>
+    <ol>
+      <li>
+        <label for="message[name]">Name:</label>
+        <input class="text" name="message[name]" type="text"></input>
+      </li>
+      <li>
+        <label for="message[mail]">Mail:</label>
+        <input class="text" name="message[mail]" type="text"></input>
+      </li>
+      <li>
+        <label for="message">Message:</label>
+        <textarea name="message"></textarea>
+      </li>
+    </ol>
+    <input class="button" type="submit" value="Send"></input>
+  </fieldset>
+</form>
+%>
 
+<div id="after_submit"></div>
+<form id="contact_form" action="#" method="POST" enctype="multipart/form-data">
+  <div class="row">
+    <label class="required" for="name">Your name:</label><br />
+    <input id="name" class="input" name="name" type="text" value="" size="30" /><br />
+    <span id="name_validation" class="error_message"></span>
+  </div>
+  <div class="row">
+    <label class="required" for="email">Your email:</label><br />
+    <input id="email" class="input" name="email" type="text" value="" size="30" /><br />
+    <span id="email_validation" class="error_message"></span>
+  </div>
+  <div class="row">
+    <label class="required" for="message">Your message:</label><br />
+    <textarea id="message" class="input" name="message" rows="7" cols="30"></textarea><br />
+    <span id="message_validation" class="error_message"></span>
+  </div>
 
-    <div class="form-group">
-      <label>Ваше имя</label>
-      <input name="uname" type="text" class="form-control" placeholder="Ваше имя" value="<%= @uname %>">
-    </div>
-
-    <div class="form-group">
-      <label>Ваш email</label>
-      <input name="uemail" type="text" class="form-control" placeholder="Ваш email" value="<%= @uemail %>">
-    </div>
-
-    <div class="form-group">
-      <label for="umessage">Ваше сообщение:</label>
-        <textarea class="form-control" rows="5" value="<%= @umessage %>"></textarea>
-    </div>
-
-
-    <input type="submit" class="btn btn-info" value="Отправить">
-
-
-    </form>
+    <input id="submit_button" type="submit" value="Send email" />
+</form>

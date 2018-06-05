@@ -15,31 +15,32 @@ get '/contacts' do
 	erb :contacts
 end
 
-post '/contact' do
-
-        @uname = params[:uname]
-        @umail = params[:umail]
-        @umessage = params[:umessage]
+post '/contacts' do
 require 'pony'
-				Pony.mail(
-			        :from => params[:uname] + "<" + params[:uemail] + ">",
-			        :to => 'etest527@gmail.com',
-			        :subject => "Barber shop " + params[:uname] + " has contacted you",
-			        :body => params[:umessage],
-			        :port => '587',
-			        :via => :smtp,
-			        :via_options => {
-			          :address              => 'smtp.gmail.com',
-			          :port                 => '587',
-			          :enable_starttls_auto => true,
-			          :user_name            => 'etest527@gmail.com',
-			          :password             => 't3stt3st',
-			          :authentication       => :plain,
-			          :domain               => 'localhost.localdomain',
-			        })
+Pony.mail(
+  #:body => params[:body],
+  :to => 'etest527@gmail.com',
+  :subject => "BarberShop received message from #{params[:name]} <#{params[:email]}> ",
+	:body => "#{params[:message]} \n\n Click here to reply #{params[:name]}: <#{params[:email]}> ",
+	#:port => '587',
+	:via => :smtp,
+  :via_options => {
+    :address              => 'smtp.gmail.com',
+    :port                 => '587',
+    :enable_starttls_auto => true,
+    :user_name            => 'etest527',
+    :password             => 't3stt3st',
+    :authentication       => :plain,
+    :domain               => 'localhost.localdomain'
+  								}
+)
+redirect '/success'
+end
 
-							redirect '/success'
-    end
+get '/success' do
+	erb :success
+end
+
 
 get '/visit' do
 	erb :visit
