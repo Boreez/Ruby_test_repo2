@@ -3,9 +3,15 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'sqlite3'
 
+
+def get_db
+		return SQLite3::Database.new 'barbershop.db'
+end
+
+
 configure do
-	@db = SQLite3::Database.new "barbershop.db" # создать новое подключение к db
-	@db.execute 'CREATE TABLE IF NOT EXISTS "Users"
+	db = get_db #= SQLite3::Database.new "barbershop.db" # создать новое подключение к db
+	db.execute 'CREATE TABLE IF NOT EXISTS "Users"
 		(
 		`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 		`username`	TEXT,
@@ -80,11 +86,13 @@ post '/visit' do
 			:datetime => 'Введите дату и время' }
 
 	@error = hh.select {|key,_| params[key] == ""}.values.join(", ")
-
+	
 	if @error != ''
-
 		return erb :visit
 	end
+
+	db = get_db # каждый раз перед подключением к бд обновлять значение переменной db
+	db.execute 'insert into Users (username,phone,datestamp,barber,color) values (?,?,?,?,?)', [@username,@phone,@datetime,@barber,@color]
 
 	erb "OK, username is #{@username}, #{@phone}, #{@datetime}, #{@barber}, #{@color}"
 
