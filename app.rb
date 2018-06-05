@@ -2,7 +2,20 @@ require 'rubygems'
 require 'sinatra'
 require 'sinatra/reloader'
 require 'sqlite3'
-db = SQLite3::Database.new 'Barbershop.sqlite'
+
+configure do
+	@db = SQLite3::Database.new "barbershop.db" # создать новое подключение к db
+	@db.execute 'CREATE TABLE IF NOT EXISTS "Users"
+		(
+		`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
+		`username`	TEXT,
+		`phone`	TEXT,
+		`datestamp`	TEXT,
+		`barber`	TEXT,
+		`color`	TEXT
+	)'
+end
+
 
 get '/' do
 	erb "Hello! <a href=\"https://github.com/bootstrap-ruby/sinatra-bootstrap\">Original</a> pattern has been modified for <a href=\"http://rubyschool.us/\">Ruby School</a>"
@@ -35,12 +48,6 @@ Pony.mail(
     :domain               => 'localhost.localdomain'
   								}
 )
-
-
-  #  db.execute "INSERT INTO Contacs (name,email,message) VALUES(#{params[:name]}, #{params[:email].to_s}, #{params[:message]})"
-	#	db.close
-
-
 redirect '/success'
 end
 
@@ -78,12 +85,6 @@ post '/visit' do
 
 		return erb :visit
 	end
-
-
-	#    db = SQLite3::Database.new 'Barbershop.sqlite'
-#
-#	    db.execute "INSERT INTO Haircoloring (username,phone,datetime,barber,color) VALUES(#{@username}, #{@phone}, #{@datetime}, #{@barber}, #{@color})"
-#			db.close
 
 	erb "OK, username is #{@username}, #{@phone}, #{@datetime}, #{@barber}, #{@color}"
 
