@@ -3,11 +3,34 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'sqlite3'
 
-
-def get_db
-		return SQLite3::Database.new 'barbershop.db'
+# метод для выборки barber из таблицы barbers
+def is_barber_exists? db, name
+	db.execute('select * from Barbers where name=?', [name]).length > 0
 end
 
+# метод для создания таблицы barber
+def seed_db db, barbers
+
+		barbers.each do |barber|
+			if !is_barber_exists? db, barber
+				db.execute 'insert into Barbers (name) values (?)', [barber]
+			end
+		end
+
+end
+
+# метод для создания подключения к БД barbershop.db
+def get_db
+		db = SQLite3::Database.new 'barbershop.db'
+		db.results_as_hash = true
+		return db
+end
+
+# выборка и запись таблицы Barbers в переменную @barbers
+before do
+	db = get_db
+	@barbers = db.execute 'select * from Barbers'
+end
 
 configure do
 	db = get_db #= SQLite3::Database.new "barbershop.db" # создать новое подключение к db
@@ -20,6 +43,14 @@ configure do
 		`barber`	TEXT,
 		`color`	TEXT
 	)'
+
+	db.execute 'CREATE TABLE IF NOT EXISTS "Barbers"
+	(
+		"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+		"name" TEXT
+		)'
+
+		seed_db db, ['Jessie Pinkman', 'Walter White', 'Gus Fring', 'Mike Ehrmantraut']
 end
 
 
@@ -35,27 +66,42 @@ get '/contacts' do
 	erb :contacts
 end
 
-post '/contacts' do
-require 'pony'
-Pony.mail(
-  #:body => params[:body],
-  :to => 'etest527@gmail.com',
-  :subject => "BarberShop received message from #{params[:name]} <#{params[:email]}> ",
-	:body => "#{params[:message]} \n\n Click here to reply #{params[:name]}: <#{params[:email]}> ",
-	#:port => '587',
-	:via => :smtp,
-  :via_options => {
-    :address              => 'smtp.gmail.com',
-    :port                 => '587',
-    :enable_starttls_auto => true,
-    :user_name            => 'etest527',
-    :password             => 't3stt3st',
-    :authentication       => :plain,
-    :domain               => 'localhost.localdomain'
-  								}
-)
-redirect '/success'
-end
+		post '/contacts' do
+				@name = params[:name]
+				@email = params[:email]
+				@message = params[:message]
+
+				hh1 = { 	:name => 'Введите имя',
+									:mail => 'Введите email',
+									:message => 'Введите сообщение' }
+
+					@error = hh1.select {|key,_| params[key] == ""}.values.join(", ")
+
+				if @error != ''
+					return erb :contacts
+				end
+
+				require 'pony'
+				Pony.mail(
+					  #:body => params[:body],
+					  :to => 'etest527@gmail.com',
+					  :subject => "BarberShop received message from #{params[:name]} <#{params[:email]}> ",
+						:body => "#{params[:message]} \n\n Click here to reply #{params[:name]}: <#{params[:email]}> ",
+						#:port => '587',
+						:via => :smtp,
+					  :via_options => {
+					    :address              => 'smtp.gmail.com',
+					    :port                 => '587',
+					    :enable_starttls_auto => true,
+					    :user_name            => 'etest527',
+					    :password             => 't3stt3st',
+					    :authentication       => :plain,
+					    :domain               => 'localhost.localdomain'
+					  								}
+					)
+					#redirect '/success'
+					erb "Your message has been sent."
+			end
 
 get '/success' do
 	erb :success
@@ -86,14 +132,20 @@ post '/visit' do
 			:datetime => 'Введите дату и время' }
 
 	@error = hh.select {|key,_| params[key] == ""}.values.join(", ")
-	
+
 	if @error != ''
 		return erb :visit
 	end
 
 	db = get_db # каждый раз перед подключением к бд обновлять значение переменной db
-	db.execute 'insert into Users (username,phone,datestamp,barber,color) values (?,?,?,?,?)', [@username,@phone,@datetime,@barber,@color]
 
+	db.execute 'insert into Users (username,phone,datestamp,barber,color) values (?,?,?,?,?)', [@username,@phone,@datetime,@barber,@color]
 	erb "OK, username is #{@username}, #{@phone}, #{@datetime}, #{@barber}, #{@color}"
 
-end
+	end
+
+	get '/showusers' do
+		db = get_db
+		@results = db.execute 'select * from Users order by id desc'
+				erb :showusers
+	end
