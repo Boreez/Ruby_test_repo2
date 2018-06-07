@@ -3,12 +3,12 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'sqlite3'
 
-# метод для выборки barber из таблицы barbers
+# метод определения существования таблицы barbers с именем барбера, принимает значения true or false
 def is_barber_exists? db, name
 	db.execute('select * from Barbers where name=?', [name]).length > 0
 end
 
-# метод для создания таблицы barber
+# метод для наполнения таблицы barber именами барберов
 def seed_db db, barbers
 
 		barbers.each do |barber|
@@ -26,7 +26,7 @@ def get_db
 		return db
 end
 
-# выборка и запись таблицы Barbers в переменную @barbers
+# выборка и запись таблицы Barbers в массив @barbers
 before do
 	db = get_db
 	@barbers = db.execute 'select * from Barbers'
@@ -145,7 +145,10 @@ post '/visit' do
 	end
 
 	get '/showusers' do
+		# db connection
 		db = get_db
+		# save select inquery in @results
 		@results = db.execute 'select * from Users order by id desc'
+		# view to show @results
 				erb :showusers
 	end
